@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zenny</string>
+    <string name="title_activity_main">Zenny</string>
+    <string name="package_name">com.snowtone.zenny</string>
+    <string name="custom_url_scheme">com.snowtone.zenny</string>
+</resources>

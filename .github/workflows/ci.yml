@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests (100% pass required)
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: E2E tests
+        run: npm run e2e
+      - name: Upload E2E screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: test-results/**/*.png
+          if-no-files-found: ignore
+
+  android-bundle:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Build web assets
+        run: npm run build
+      - name: Sync Capacitor
+        run: npx cap sync android
+      - name: Build release AAB
+        working-directory: android
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease --no-daemon
+      - name: Upload store-ready bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: zenny-release-aab
+          path: android/app/build/outputs/bundle/release/*.aab

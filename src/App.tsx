@@ -154,8 +154,11 @@ export default function App() {
                     )}
                   </span>
                   <span className="sub-meta">
-                    {formatCents(s.priceCents, currency)}/{s.cadence.replace('ly', '')} ·{' '}
-                    {formatCents(monthlyCostCents(s.priceCents, s.cadence), currency)}/mo ·{' '}
+                    {formatCents(s.priceCents, currency)}/{s.cadence.replace('ly', '')}
+                    {s.cadence !== 'monthly' && (
+                      <> · {formatCents(monthlyCostCents(s.priceCents, s.cadence), currency)}/mo</>
+                    )}{' '}
+                    ·{' '}
                     <span className={days <= 3 ? 'renew urgent' : 'renew'}>
                       {days === 0 ? 'renews today' : `renews in ${days}d`}
                     </span>
