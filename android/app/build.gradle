@@ -16,10 +16,25 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            // Signing is applied only when upload-key env vars are provided (e.g. CI secrets).
+            def ksPath = System.getenv('ZENNY_KEYSTORE_PATH')
+            if (ksPath != null) {
+                storeFile file(ksPath)
+                storePassword System.getenv('ZENNY_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ZENNY_KEY_ALIAS')
+                keyPassword System.getenv('ZENNY_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (System.getenv('ZENNY_KEYSTORE_PATH') != null) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }

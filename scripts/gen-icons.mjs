@@ -20,4 +20,14 @@ for (const size of sizes) {
   await page.screenshot({ path: resolve(`public/icon-${size}.png`), omitBackground: true });
   console.log(`wrote public/icon-${size}.png`);
 }
+
+// Maskable variant: full-bleed brand background with the artwork scaled into the 80% safe zone.
+await page.setViewportSize({ width: 512, height: 512 });
+await page.setContent(
+  `<body style="margin:0"><div style="width:512px;height:512px;background:#14532d;display:grid;place-items:center">
+     <div style="width:410px;height:410px">${svg.replace('<svg ', '<svg width="410" height="410" ')}</div>
+   </div></body>`
+);
+await page.screenshot({ path: resolve('public/icon-512-maskable.png') });
+console.log('wrote public/icon-512-maskable.png');
 await browser.close();

@@ -30,14 +30,16 @@ export function SubscriptionForm({ editing, onClose }: Props) {
     if (!p) return;
     setName(p.name);
     setCadence(p.cadence);
-    setPrice((p.priceCents / 100).toFixed(2));
+    // preset prices are stored in USD cents; present them in the user's currency digits
+    setPrice(digitsPrice(p.priceCents));
   };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const priceCents = parseToCents(price, settings.currency);
     if (!name.trim()) return setError('Please give it a name.');
-    if (priceCents === null || priceCents === 0) return setError('Please enter a valid price.');
+    if (priceCents === null || (priceCents === 0 && !isTrial)) return setError('Please enter a valid price.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(firstBillDate)) return setError('Please pick a first bill date.');
     if (isTrial && !trialEndDate) return setError('When does the trial end?');
 
     const base = {

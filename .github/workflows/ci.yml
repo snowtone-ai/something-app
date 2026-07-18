@@ -36,6 +36,8 @@ jobs:
   android-bundle:
     needs: test
     runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.ZENNY_KEYSTORE_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,13 +53,25 @@ jobs:
         run: npm run build
       - name: Sync Capacitor
         run: npx cap sync android
+      - name: Restore upload keystore (if configured)
+        if: ${{ env.HAS_KEYSTORE == 'true' }}
+        run: |
+          echo "$ZENNY_KEYSTORE_BASE64" | base64 -d > $RUNNER_TEMP/upload.keystore
+          echo "ZENNY_KEYSTORE_PATH=$RUNNER_TEMP/upload.keystore" >> $GITHUB_ENV
+        env:
+          ZENNY_KEYSTORE_BASE64: ${{ secrets.ZENNY_KEYSTORE_BASE64 }}
       - name: Build release AAB
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon
+        env:
+          ZENNY_KEYSTORE_PASSWORD: ${{ secrets.ZENNY_KEYSTORE_PASSWORD }}
+          ZENNY_KEY_ALIAS: ${{ secrets.ZENNY_KEY_ALIAS }}
+          ZENNY_KEY_PASSWORD: ${{ secrets.ZENNY_KEY_PASSWORD }}
       - name: Upload store-ready bundle
         uses: actions/upload-artifact@v4
         with:
           name: zenny-release-aab
           path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error

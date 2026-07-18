@@ -22,7 +22,7 @@ interface ZennyState {
   addSubscription: (input: NewSubscription) => void;
   updateSubscription: (id: string, patch: Partial<Subscription>) => void;
   slaySubscription: (id: string, todayISO: string) => void;
-  restoreSubscription: (id: string) => void;
+  restoreSubscription: (id: string, todayISO: string) => void;
   removeSubscription: (id: string) => void;
   recordUsageCheck: (id: string, used: boolean, todayISO: string) => void;
   setCurrency: (currency: string) => void;
@@ -65,11 +65,12 @@ export const useZenny = create<ZennyState>()(
           }))
         })),
 
-      restoreSubscription: (id) =>
+      restoreSubscription: (id, todayISO) =>
         set((st) => ({
           subscriptions: patchSub(st.subscriptions, id, (s) => ({
             ...s,
-            status: 'active',
+            // a still-running trial comes back as a trial, not a paid subscription
+            status: s.trialEndDate && s.trialEndDate >= todayISO ? 'trial' : 'active',
             slainAt: undefined
           }))
         })),

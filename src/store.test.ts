@@ -37,10 +37,25 @@ describe('store', () => {
     add();
     const id = useZenny.getState().subscriptions[0].id;
     useZenny.getState().slaySubscription(id, '2026-07-19');
-    useZenny.getState().restoreSubscription(id);
+    useZenny.getState().restoreSubscription(id, '2026-07-19');
     const s = useZenny.getState().subscriptions[0];
     expect(s.status).toBe('active');
     expect(s.slainAt).toBeUndefined();
+  });
+
+  it('restores a slain sub with a live trial back to trial status', () => {
+    useZenny.getState().addSubscription({
+      name: 'Trial svc',
+      priceCents: 999,
+      cadence: 'monthly',
+      firstBillDate: '2026-07-01',
+      status: 'trial',
+      trialEndDate: '2026-08-01'
+    });
+    const id = useZenny.getState().subscriptions[0].id;
+    useZenny.getState().slaySubscription(id, '2026-07-19');
+    useZenny.getState().restoreSubscription(id, '2026-07-19');
+    expect(useZenny.getState().subscriptions[0].status).toBe('trial');
   });
 
   it('records usage check-ins, replacing same-day answers', () => {

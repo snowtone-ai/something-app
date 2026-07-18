@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PetView } from './components/PetView';
 import { SubscriptionForm } from './components/SubscriptionForm';
 import { ShareCard } from './components/ShareCard';
@@ -39,7 +39,14 @@ export default function App() {
   const [editing, setEditing] = useState<Subscription | undefined>();
   const [showShare, setShowShare] = useState(false);
 
-  const today = toISODate(new Date());
+  // refreshes at midnight so renewal countdowns stay correct in long-lived sessions
+  const [today, setToday] = useState(() => toISODate(new Date()));
+  useEffect(() => {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const t = setTimeout(() => setToday(toISODate(new Date())), midnight.getTime() - now.getTime() + 1000);
+    return () => clearTimeout(t);
+  }, [today]);
   const currency = settings.currency;
 
   const pet = useMemo(() => petState(subscriptions, today), [subscriptions, today]);
@@ -186,7 +193,7 @@ export default function App() {
                   </span>
                 </div>
                 <div className="row-actions">
-                  <button className="btn small ghost" onClick={() => restoreSubscription(s.id)} aria-label={`Restore ${s.name}`}>
+                  <button className="btn small ghost" onClick={() => restoreSubscription(s.id, today)} aria-label={`Restore ${s.name}`}>
                     Restore
                   </button>
                   <button className="btn small ghost" onClick={() => removeSubscription(s.id)} aria-label={`Delete ${s.name}`}>
