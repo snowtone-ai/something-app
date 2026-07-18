@@ -33,6 +33,7 @@ test('full core loop: add → burn → slay → rescue → persist', async ({ pa
   await expect(page.getByText('Zenny the dragon')).toBeVisible();
   await expect(page.getByText('Lv. 5')).toBeVisible();
   await expect(page.getByLabel('Monthly burn')).toContainText('$0.00');
+  await page.screenshot({ path: 'test-results/dragon.png', fullPage: true });
 
   // share card renders and offers a PNG download
   await page.getByRole('button', { name: 'Share victory' }).click();
