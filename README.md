@@ -3,6 +3,8 @@
 **The anti-subscription app.** Track your subscriptions, hunt the zombies you pay for but never
 use, and slay them — while Zenny, your money-guardian pet, grows with every dollar you rescue.
 
+Status: 継続開発中
+
 - 🔒 **100% private** — everything stays on your device. No account, no bank link, no tracking, no server.
 - 🧟 **Zombie detection** — weekly "did you actually use it?" check-ins surface the money leaks.
 - ⚔️ **Slay & rescue** — cancelling feels like winning: rescued money levels up your pet from egg to elder.
